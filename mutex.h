@@ -1,5 +1,5 @@
 #ifndef MUTEX_HEADER_
-#define MUTEX_HEADER_ 
+#define MUTEX_HEADER_
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -11,46 +11,43 @@
 
 namespace PCM_Util {
 
-    class Mutex {
+class Mutex {
+#ifdef _MSC_VER
+  HANDLE mutex_;
+#else
+  pthread_mutex_t mutex_;
+#endif
+ public:
+  Mutex() {
+#ifdef _MSC_VER
+    mutex_ = CreateMutex(NULL, FALSE, NULL);
+#else
+    pthread_mutex_init(&mutex_, NULL);
+#endif
+  }
+  virtual ~Mutex() {
+#ifdef _MSC_VER
+    CloseHandle(mutex_);
+#else
+    pthread_mutex_destroy(&mutex_);
+#endif
+  }
 
+  void lock() {
 #ifdef _MSC_VER
-        HANDLE mutex_;
+    WaitForSingleObject(mutex_, INFINITE);
 #else
-        pthread_mutex_t mutex_;
+    pthread_mutex_lock(&mutex_);
 #endif
-    public:
-        Mutex() {
+  }
+  void unlock() {
 #ifdef _MSC_VER
-            mutex_ = CreateMutex(NULL, FALSE, NULL);
+    ReleaseMutex(mutex_);
 #else
-            pthread_mutex_init(&mutex_, NULL);
+    pthread_mutex_unlock(&mutex_);
 #endif
-        }
-        virtual ~Mutex() {
-#ifdef _MSC_VER
-            CloseHandle(mutex_);
-#else
-            pthread_mutex_destroy(&mutex_);
-#endif
-        }
-
-        void lock() {
-#ifdef _MSC_VER
-            WaitForSingleObject(mutex_, INFINITE);
-#else
-            pthread_mutex_lock(&mutex_);
-#endif
-        }
-        void unlock() {
-#ifdef _MSC_VER
-            ReleaseMutex(mutex_);
-#else
-            pthread_mutex_unlock(&mutex_);
-#endif
-        }
-    };
-
+  }
+};
 };
 
 #endif
-
