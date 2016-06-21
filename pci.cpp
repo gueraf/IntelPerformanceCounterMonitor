@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 // written by Roman Dementiev,
 //            Pat Fay
-//	      Austen Ott
+//        Austen Ott
 //            Jim Harris (FreeBSD)
 
 #include "pci.h"
@@ -60,14 +60,13 @@ PciHandle::PciHandle(uint32 groupnr_, uint32 bus_, uint32 device_,
   if (groupnr_ != 0) {
     std::cerr << "Non-zero PCI group segments are not supported in PCM/Windows"
               << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   hDriver = CreateFile(L"\\\\.\\RDMSR", GENERIC_READ | GENERIC_WRITE, 0, NULL,
                        OPEN_EXISTING, 0, NULL);
 
-  if (hDriver == INVALID_HANDLE_VALUE && hOpenLibSys == NULL)
-    throw std::exception();
+  if (hDriver == INVALID_HANDLE_VALUE && hOpenLibSys == NULL) std::abort();
 }
 
 bool PciHandle::exists(uint32 bus_, uint32 device_, uint32 function_) {
@@ -232,11 +231,11 @@ PciHandle::PciHandle(uint32 groupnr_, uint32 bus_, uint32 device_,
     std::cout << "ERROR: non-zero PCI segment groupnr is not supported in this "
                  "PciHandle implementation"
               << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   int handle = ::open("/dev/pci", O_RDWR);
-  if (handle < 0) throw std::exception();
+  if (handle < 0) std::abort();
   fd = handle;
 }
 
@@ -344,7 +343,7 @@ PciHandle::PciHandle(uint32 groupnr_, uint32 bus_, uint32 device_,
     std::cout << "ERROR: non-zero PCI segment groupnr is not supported in this "
                  "PciHandle implementation"
               << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   std::ostringstream path(std::ostringstream::out);
@@ -356,7 +355,7 @@ PciHandle::PciHandle(uint32 groupnr_, uint32 bus_, uint32 device_,
   // std::cout << path.str().c_str() << std::endl;
 
   int handle = ::open(path.str().c_str(), O_RDWR);
-  if (handle < 0) throw std::exception();
+  if (handle < 0) std::abort();
   fd = handle;
 
   // std::cout << "Opened "<< path.str().c_str() << " on handle "<< fd <<
@@ -400,18 +399,18 @@ PciHandle::~PciHandle() {
 PciHandleM::PciHandleM(uint32 bus_, uint32 device_, uint32 function_)
     : fd(-1), bus(bus_), device(device_), function(function_), base_addr(0) {
   int handle = ::open("/dev/mem", O_RDWR);
-  if (handle < 0) throw std::exception();
+  if (handle < 0) std::abort();
   fd = handle;
 
   int mcfg_handle = ::open("/sys/firmware/acpi/tables/MCFG", O_RDONLY);
 
-  if (mcfg_handle < 0) throw std::exception();
+  if (mcfg_handle < 0) std::abort();
 
   int32 result = ::pread(mcfg_handle, (void *)&base_addr, sizeof(uint64), 44);
 
   if (result != sizeof(uint64)) {
     ::close(mcfg_handle);
-    throw std::exception();
+    std::abort();
   }
 
   unsigned char max_bus = 0;
@@ -420,7 +419,7 @@ PciHandleM::PciHandleM(uint32 bus_, uint32 device_, uint32 function_)
 
   if (result != sizeof(unsigned char)) {
     ::close(mcfg_handle);
-    throw std::exception();
+    std::abort();
   }
 
   ::close(mcfg_handle);
@@ -429,7 +428,7 @@ PciHandleM::PciHandleM(uint32 bus_, uint32 device_, uint32 function_)
     std::cout << "WARNING: Requested bus number " << bus
               << " is larger than the max bus number " << (unsigned)max_bus
               << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   // std::cout << "PCI config base addr: "<< std::hex << base_addr<< std::endl;
@@ -496,7 +495,7 @@ void PciHandleMM::readMCFG() {
 
   if (mcfg_handle < 0) {
     std::cerr << "PCM Error: Cannot open " << path << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   ssize_t read_bytes =
@@ -504,7 +503,7 @@ void PciHandleMM::readMCFG() {
 
   if (read_bytes == 0) {
     std::cerr << "PCM Error: Cannot read " << path << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   const unsigned segments = mcfgHeader.nrecords();
@@ -518,7 +517,7 @@ void PciHandleMM::readMCFG() {
     read_bytes = ::read(mcfg_handle, (void *)&record, sizeof(MCFGRecord));
     if (read_bytes == 0) {
       std::cerr << "PCM Error: Cannot read " << path << " (2)" << std::endl;
-      throw std::exception();
+      std::abort();
     }
 #ifdef PCM_DEBUG
     std::cout << "PCM Debug: segment " << std::dec << i << " ";
@@ -539,7 +538,7 @@ PciHandleMM::PciHandleMM(uint32 groupnr_, uint32 bus_, uint32 device_,
       function(function_),
       base_addr(0) {
   int handle = ::open("/dev/mem", O_RDWR);
-  if (handle < 0) throw std::exception();
+  if (handle < 0) std::abort();
   fd = handle;
 
   readMCFG();
@@ -554,7 +553,7 @@ PciHandleMM::PciHandleMM(uint32 groupnr_, uint32 bus_, uint32 device_,
   if (segment == mcfgRecords.size()) {
     std::cerr << "PCM Error: (group " << groupnr_ << ", bus " << bus_
               << ") not found in the MCFG table." << std::endl;
-    throw std::exception();
+    std::abort();
   } else {
 #ifdef PCM_DEBUG
     std::cout << "PCM Debug: (group " << groupnr_ << ", bus " << bus_
@@ -572,7 +571,7 @@ PciHandleMM::PciHandleMM(uint32 groupnr_, uint32 bus_, uint32 device_,
 
   if (mmapAddr == MAP_FAILED) {
     std::cout << "mmap failed: errno is " << errno << std::endl;
-    throw std::exception();
+    std::abort();
   }
 }
 

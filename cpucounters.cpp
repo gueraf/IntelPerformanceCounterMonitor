@@ -980,40 +980,42 @@ void PCM::printSystemTopology() const {
 
 bool PCM::initMSR() {
 #ifndef __APPLE__
-  try {
-    for (int i = 0; i < (int)num_cores; ++i) {
-      if (isCoreOnline((int32)i))
-        MSR.push_back(std::shared_ptr<SafeMsrHandle>(new SafeMsrHandle(i)));
-      else  // the core is offlined, assign an invalid MSR handle
-        MSR.push_back(std::shared_ptr<SafeMsrHandle>(new SafeMsrHandle()));
-    }
-  } catch (...) {
-    // failed
-    MSR.clear();
-
-    std::cerr << "Can not access CPUs Model Specific Registers (MSRs)."
-              << std::endl;
-#ifdef _MSC_VER
-    std::cerr << "You must have signed msr.sys driver in your current "
-                 "directory and have administrator rights to run this program."
-              << std::endl;
-#elif defined(__linux__)
-    std::cerr << "Try to execute 'modprobe msr' as root user and then"
-              << std::endl;
-    std::cerr << "you also must have read and write permissions for "
-                 "/dev/cpu/*/msr devices (/dev/msr* for Android). The 'chown' "
-                 "command can help."
-              << std::endl;
-#elif defined(__FreeBSD__)
-    std::cerr
-        << "Ensure cpuctl module is loaded and that you have read and write"
-        << std::endl;
-    std::cerr << "permissions for /dev/cpuctl* devices (the 'chown' command "
-                 "can help)."
-              << std::endl;
-#endif
-    return false;
+  // try {
+  for (int i = 0; i < (int)num_cores; ++i) {
+    if (isCoreOnline((int32)i))
+      MSR.push_back(std::shared_ptr<SafeMsrHandle>(new SafeMsrHandle(i)));
+    else  // the core is offlined, assign an invalid MSR handle
+      MSR.push_back(std::shared_ptr<SafeMsrHandle>(new SafeMsrHandle()));
   }
+//  } catch (...) {
+//    // failed
+//    MSR.clear();
+//
+//    std::cerr << "Can not access CPUs Model Specific Registers (MSRs)."
+//              << std::endl;
+//#ifdef _MSC_VER
+//    std::cerr << "You must have signed msr.sys driver in your current "
+//                 "directory and have administrator rights to run this
+//                 program."
+//              << std::endl;
+//#elif defined(__linux__)
+//    std::cerr << "Try to execute 'modprobe msr' as root user and then"
+//              << std::endl;
+//    std::cerr << "you also must have read and write permissions for "
+//                 "/dev/cpu/*/msr devices (/dev/msr* for Android). The 'chown'
+//                 "
+//                 "command can help."
+//              << std::endl;
+//#elif defined(__FreeBSD__)
+//    std::cerr
+//        << "Ensure cpuctl module is loaded and that you have read and write"
+//        << std::endl;
+//    std::cerr << "permissions for /dev/cpuctl* devices (the 'chown' command "
+//                 "can help)."
+//              << std::endl;
+//#endif
+//    return false;
+//  }
 #endif
   return true;
 }
@@ -1103,70 +1105,76 @@ void PCM::initEnergyMonitoring() {
 void PCM::initUncoreObjects() {
   if (hasPCICFGUncore() && MSR.size()) {
     int i = 0;
-    try {
-      for (i = 0; i < (int)num_sockets; ++i) {
-        server_pcicfg_uncore.push_back(std::shared_ptr<ServerPCICFGUncore>(
-            new ServerPCICFGUncore(i, this)));
-      }
-    } catch (...) {
-      server_pcicfg_uncore.clear();
-      std::cerr << "Can not access Jaketown/Ivytown PCI configuration space. "
-                   "Access to uncore counters (memory and QPI bandwidth) is "
-                   "disabled."
-                << std::endl;
-#ifdef _MSC_VER
-      std::cerr << "You must have signed msr.sys driver in your current "
-                   "directory and have administrator rights to run this "
-                   "program."
-                << std::endl;
-#else
-      // std::cerr << "you must have read and write permissions for
-      // /proc/bus/pci/7f/10.* and /proc/bus/pci/ff/10.* devices (the 'chown'
-      // command can help)." << std::endl;
-      // std::cerr << "you must have read and write permissions for /dev/mem
-      // device (the 'chown' command can help)."<< std::endl;
-      // std::cerr << "you must have read permission for
-      // /sys/firmware/acpi/tables/MCFG device (the 'chmod' command can
-      // help)."<< std::endl;
-      std::cerr << "You must be root to access these Jaketown/Ivytown counters "
-                   "in PCM. "
-                << std::endl;
-#endif
+    // try {
+    for (i = 0; i < (int)num_sockets; ++i) {
+      server_pcicfg_uncore.push_back(
+          std::shared_ptr<ServerPCICFGUncore>(new ServerPCICFGUncore(i, this)));
     }
+    //     } catch (...) {
+    //       server_pcicfg_uncore.clear();
+    //       std::cerr << "Can not access Jaketown/Ivytown PCI configuration
+    //       space. "
+    //                    "Access to uncore counters (memory and QPI bandwidth)
+    //                    is "
+    //                    "disabled."
+    //                 << std::endl;
+    // #ifdef _MSC_VER
+    //       std::cerr << "You must have signed msr.sys driver in your current "
+    //                    "directory and have administrator rights to run this "
+    //                    "program."
+    //                 << std::endl;
+    // #else
+    //       // std::cerr << "you must have read and write permissions for
+    //       // /proc/bus/pci/7f/10.* and /proc/bus/pci/ff/10.* devices (the
+    //       'chown'
+    //       // command can help)." << std::endl;
+    //       // std::cerr << "you must have read and write permissions for
+    //       /dev/mem
+    //       // device (the 'chown' command can help)."<< std::endl;
+    //       // std::cerr << "you must have read permission for
+    //       // /sys/firmware/acpi/tables/MCFG device (the 'chmod' command can
+    //       // help)."<< std::endl;
+    //       std::cerr << "You must be root to access these Jaketown/Ivytown
+    //       counters "
+    //                    "in PCM. "
+    //                 << std::endl;
+    // #endif
+    //     }
   } else if ((cpu_model == SANDY_BRIDGE || cpu_model == IVY_BRIDGE ||
               cpu_model == HASWELL || cpu_model == BROADWELL ||
               cpu_model == SKL) &&
              MSR.size()) {
     // initialize memory bandwidth counting
-    try {
-      clientBW = std::shared_ptr<ClientBW>(new ClientBW());
-      clientImcReads =
-          std::shared_ptr<CounterWidthExtender>(new CounterWidthExtender(
-              new CounterWidthExtender::ClientImcReadsCounter(clientBW), 32,
-              10000));
-      clientImcWrites =
-          std::shared_ptr<CounterWidthExtender>(new CounterWidthExtender(
-              new CounterWidthExtender::ClientImcWritesCounter(clientBW), 32,
-              10000));
-      clientIoRequests =
-          std::shared_ptr<CounterWidthExtender>(new CounterWidthExtender(
-              new CounterWidthExtender::ClientIoRequestsCounter(clientBW), 32,
-              10000));
+    // try {
+    clientBW = std::shared_ptr<ClientBW>(new ClientBW());
+    clientImcReads =
+        std::shared_ptr<CounterWidthExtender>(new CounterWidthExtender(
+            new CounterWidthExtender::ClientImcReadsCounter(clientBW), 32,
+            10000));
+    clientImcWrites =
+        std::shared_ptr<CounterWidthExtender>(new CounterWidthExtender(
+            new CounterWidthExtender::ClientImcWritesCounter(clientBW), 32,
+            10000));
+    clientIoRequests =
+        std::shared_ptr<CounterWidthExtender>(new CounterWidthExtender(
+            new CounterWidthExtender::ClientIoRequestsCounter(clientBW), 32,
+            10000));
 
-    } catch (...) {
-      std::cerr << "Can not read memory controller counter information from "
-                   "PCI configuration space. Access to memory bandwidth "
-                   "counters is not possible."
-                << std::endl;
-#ifdef _MSC_VER
-// TODO: add message here
-#endif
-#ifdef __linux__
-      std::cerr << "You must be root to access these "
-                   "SandyBridge/IvyBridge/Haswell counters in PCM. "
-                << std::endl;
-#endif
-    }
+    //     } catch (...) {
+    //       std::cerr << "Can not read memory controller counter information
+    //       from "
+    //                    "PCI configuration space. Access to memory bandwidth "
+    //                    "counters is not possible."
+    //                 << std::endl;
+    // #ifdef _MSC_VER
+    // // TODO: add message here
+    // #endif
+    // #ifdef __linux__
+    //       std::cerr << "You must be root to access these "
+    //                    "SandyBridge/IvyBridge/Haswell counters in PCM. "
+    //                 << std::endl;
+    // #endif
+    //     }
   }
 
   switch (cpu_model) {
@@ -3327,7 +3335,7 @@ void print_mcfg(const char *path) {
 
   if (mcfg_handle < 0) {
     std::cerr << "PCM Error: Cannot open " << path << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   MCFGHeader header;
@@ -3336,7 +3344,7 @@ void print_mcfg(const char *path) {
 
   if (read_bytes == 0) {
     std::cerr << "PCM Error: Cannot read " << path << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   const unsigned segments = header.nrecords();
@@ -3348,7 +3356,7 @@ void print_mcfg(const char *path) {
     read_bytes = ::read(mcfg_handle, (void *)&record, sizeof(MCFGRecord));
     if (read_bytes == 0) {
       std::cerr << "PCM Error: Cannot read " << path << " (2)" << std::endl;
-      throw std::exception();
+      std::abort();
     }
     std::cout << "Segment " << std::dec << i << " ";
     record.print();
@@ -3384,16 +3392,16 @@ void ServerPCICFGUncore::initSocket2Bus() {
     for (uint32 bus = (uint32)mcfg[s].startBusNumber;
          bus <= (uint32)mcfg[s].endBusNumber; ++bus) {
       uint32 value = 0;
-      try {
-        PciHandleM h(mcfg[s].PCISegmentGroupNumber, bus,
-                     MCX_CHY_REGISTER_DEV_ADDR[0][0],
-                     MCX_CHY_REGISTER_FUNC_ADDR[0][0]);
-        h.read32(0, &value);
+      // try {
+      PciHandleM h(mcfg[s].PCISegmentGroupNumber, bus,
+                   MCX_CHY_REGISTER_DEV_ADDR[0][0],
+                   MCX_CHY_REGISTER_FUNC_ADDR[0][0]);
+      h.read32(0, &value);
 
-      } catch (...) {
-        // reached invalid bus
-        return;
-      }
+      // } catch (...) {
+      //   // reached invalid bus
+      //   return;
+      // }
       const uint32 vendor_id = value & 0xffff;
       const uint32 device_id = (value >> 16) & 0xffff;
       if (vendor_id != PCM_INTEL_PCI_VENDOR_ID) continue;
@@ -3484,7 +3492,7 @@ ServerPCICFGUncore::ServerPCICFGUncore(uint32 socket_, PCM *pcm)
   } else {
     std::cout << "Error: Uncore PMU for processor with model id " << cpu_model
               << " is not supported." << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
 #undef PCM_PCICFG_MC_INIT
@@ -3502,7 +3510,7 @@ ServerPCICFGUncore::ServerPCICFGUncore(uint32 socket_, PCM *pcm)
       std::cerr << "Cannot find bus for socket " << socket_
                 << " on system with " << total_sockets_ << " sockets."
                 << std::endl;
-      throw std::exception();
+      std::abort();
     } else {
       std::cerr << "PCM Warning: the bus for socket " << socket_
                 << " on system with " << total_sockets_
@@ -3513,7 +3521,7 @@ ServerPCICFGUncore::ServerPCICFGUncore(uint32 socket_, PCM *pcm)
   } else {
     std::cerr << "Cannot find bus for socket " << socket_ << " on system with "
               << total_sockets_ << " sockets." << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   {
@@ -3546,7 +3554,7 @@ ServerPCICFGUncore::ServerPCICFGUncore(uint32 socket_, PCM *pcm)
 
   if (imcHandles.empty()) {
     std::cerr << "PCM error: no memory controllers found." << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
   if (total_sockets_ == 1) {
@@ -3588,62 +3596,62 @@ ServerPCICFGUncore::ServerPCICFGUncore(uint32 socket_, PCM *pcm)
   } else {
     std::cout << "Error: Uncore PMU for processor with model id " << cpu_model
               << " is not supported." << std::endl;
-    throw std::exception();
+    std::abort();
   }
 
 #undef PCM_PCICFG_QPI_INIT
 
-  try {
-    {
-      PciHandleM *handle =
-          createIntelPerfMonDevice(groupnr, bus, QPI_PORTX_REGISTER_DEV_ADDR[0],
-                                   QPI_PORTX_REGISTER_FUNC_ADDR[0], true);
-      if (handle)
-        qpiLLHandles.push_back(std::shared_ptr<PciHandleM>(handle));
-      else
-        std::cerr
-            << "ERROR: QPI LL monitoring device (" << groupnr << ":" << bus
-            << ":" << QPI_PORTX_REGISTER_DEV_ADDR[0] << ":"
-            << QPI_PORTX_REGISTER_FUNC_ADDR[0]
-            << ") is missing. The QPI statistics will be incomplete or missing."
-            << std::endl;
-    }
-    {
-      PciHandleM *handle =
-          createIntelPerfMonDevice(groupnr, bus, QPI_PORTX_REGISTER_DEV_ADDR[1],
-                                   QPI_PORTX_REGISTER_FUNC_ADDR[1], true);
-      if (handle)
-        qpiLLHandles.push_back(std::shared_ptr<PciHandleM>(handle));
-      else
-        std::cerr
-            << "ERROR: QPI LL monitoring device (" << groupnr << ":" << bus
-            << ":" << QPI_PORTX_REGISTER_DEV_ADDR[1] << ":"
-            << QPI_PORTX_REGISTER_FUNC_ADDR[1]
-            << ") is missing. The QPI statistics will be incomplete or missing."
-            << std::endl;
-    }
-    {
-      PciHandleM *handle =
-          createIntelPerfMonDevice(groupnr, bus, QPI_PORTX_REGISTER_DEV_ADDR[2],
-                                   QPI_PORTX_REGISTER_FUNC_ADDR[2], true);
-      if (handle)
-        qpiLLHandles.push_back(std::shared_ptr<PciHandleM>(handle));
-      else {
-        if (pcm->getCPUBrandString().find("E7") !=
-            std::string::npos) {  // Xeon E7
-          std::cerr << "ERROR: QPI LL performance monitoring device for the "
-                       "third QPI link was not found on "
-                    << pcm->getCPUBrandString() << " processor in socket "
-                    << socket_ << ". Possibly BIOS hides the device. The QPI "
-                                  "statistics will be incomplete or missing."
-                    << std::endl;
-        }
+  // try {
+  {
+    PciHandleM *handle =
+        createIntelPerfMonDevice(groupnr, bus, QPI_PORTX_REGISTER_DEV_ADDR[0],
+                                 QPI_PORTX_REGISTER_FUNC_ADDR[0], true);
+    if (handle)
+      qpiLLHandles.push_back(std::shared_ptr<PciHandleM>(handle));
+    else
+      std::cerr
+          << "ERROR: QPI LL monitoring device (" << groupnr << ":" << bus << ":"
+          << QPI_PORTX_REGISTER_DEV_ADDR[0] << ":"
+          << QPI_PORTX_REGISTER_FUNC_ADDR[0]
+          << ") is missing. The QPI statistics will be incomplete or missing."
+          << std::endl;
+  }
+  {
+    PciHandleM *handle =
+        createIntelPerfMonDevice(groupnr, bus, QPI_PORTX_REGISTER_DEV_ADDR[1],
+                                 QPI_PORTX_REGISTER_FUNC_ADDR[1], true);
+    if (handle)
+      qpiLLHandles.push_back(std::shared_ptr<PciHandleM>(handle));
+    else
+      std::cerr
+          << "ERROR: QPI LL monitoring device (" << groupnr << ":" << bus << ":"
+          << QPI_PORTX_REGISTER_DEV_ADDR[1] << ":"
+          << QPI_PORTX_REGISTER_FUNC_ADDR[1]
+          << ") is missing. The QPI statistics will be incomplete or missing."
+          << std::endl;
+  }
+  {
+    PciHandleM *handle =
+        createIntelPerfMonDevice(groupnr, bus, QPI_PORTX_REGISTER_DEV_ADDR[2],
+                                 QPI_PORTX_REGISTER_FUNC_ADDR[2], true);
+    if (handle)
+      qpiLLHandles.push_back(std::shared_ptr<PciHandleM>(handle));
+    else {
+      if (pcm->getCPUBrandString().find("E7") !=
+          std::string::npos) {  // Xeon E7
+        std::cerr << "ERROR: QPI LL performance monitoring device for the "
+                     "third QPI link was not found on "
+                  << pcm->getCPUBrandString() << " processor in socket "
+                  << socket_ << ". Possibly BIOS hides the device. The QPI "
+                                "statistics will be incomplete or missing."
+                  << std::endl;
       }
     }
-  } catch (...) {
-    std::cerr << "PCM Error: can not create QPI LL handles." << std::endl;
-    throw std::exception();
   }
+// } catch (...) {
+//   std::cerr << "PCM Error: can not create QPI LL handles." << std::endl;
+//   std::abort();
+// }
 #endif
   std::cerr << "Socket " << socket_ << ": " << num_imc
             << " memory controllers detected with total number of "

@@ -107,7 +107,7 @@ ClientBW::ClientBW() : pmem(new PCMPmem()) {
   // std::cout << "DEBUG: imcbar="<<std::hex << imcbar <<std::endl;
   if (!imcbar) {
     std::cerr << "ERROR: imcbar is zero." << std::endl;
-    throw std::exception();
+    std::abort();
   }
   startAddr = imcbar & (~(4096ULL - 1ULL));  // round down to 4K
 }
@@ -191,7 +191,7 @@ ClientBW::~ClientBW() { PCIDriver_unmapMemory((uint8_t*)mmapAddr); }
 
 ClientBW::ClientBW() : fd(-1), mmapAddr(NULL) {
   int handle = ::open("/dev/mem", O_RDONLY);
-  if (handle < 0) throw std::exception();
+  if (handle < 0) std::abort();
   fd = handle;
 
   PciHandleM imcHandle(0, 0, 0, 0);  // memory controller device coordinates:
@@ -201,7 +201,7 @@ ClientBW::ClientBW() : fd(-1), mmapAddr(NULL) {
   // std::cout << "DEBUG: imcbar="<<std::hex << imcbar <<std::endl;
   if (!imcbar) {
     std::cerr << "ERROR: imcbar is zero." << std::endl;
-    throw std::exception();
+    std::abort();
   }
   uint64 startAddr = imcbar & (~(4096 - 1));  // round down to 4K
   // std::cout << "DEBUG: startAddr="<<std::hex << startAddr <<std::endl;
@@ -211,7 +211,7 @@ ClientBW::ClientBW() : fd(-1), mmapAddr(NULL) {
   if (mmapAddr == MAP_FAILED) {
     std::cout << "mmap failed: errno is " << errno << " (" << strerror(errno)
               << ")" << std::endl;
-    throw std::exception();
+    std::abort();
   }
 }
 

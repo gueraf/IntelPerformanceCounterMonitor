@@ -55,8 +55,7 @@ MsrHandle::MsrHandle(uint32 cpu) : cpu_id(cpu) {
   hDriver = CreateFile(L"\\\\.\\RDMSR", GENERIC_READ | GENERIC_WRITE, 0, NULL,
                        OPEN_EXISTING, 0, NULL);
 
-  if (hDriver == INVALID_HANDLE_VALUE && hOpenLibSys == NULL)
-    throw std::exception();
+  if (hDriver == INVALID_HANDLE_VALUE && hOpenLibSys == NULL) std::abort();
 }
 
 MsrHandle::~MsrHandle() {
@@ -166,7 +165,7 @@ MsrHandle::MsrHandle(uint32 cpu) : fd(-1), cpu_id(cpu) {
   char path[200];
   sprintf(path, "/dev/cpuctl%d", cpu);
   int handle = ::open(path, O_RDWR);
-  if (handle < 0) throw std::exception();
+  if (handle < 0) std::abort();
   fd = handle;
 }
 
@@ -203,7 +202,7 @@ MsrHandle::MsrHandle(uint32 cpu) : fd(-1), cpu_id(cpu) {
     handle = ::open(path, O_RDWR);
   }
   delete[] path;
-  if (handle < 0) throw std::exception();
+  if (handle < 0) std::abort();
   fd = handle;
 }
 

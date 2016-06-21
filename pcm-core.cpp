@@ -206,7 +206,7 @@ void build_event(const char *argv, EventSelectRegister *reg, int idx) {
         if (idx >= 2) {
           cerr << "offcore_rsp must specify in first or second event only. idx="
                << idx << endl;
-          throw idx;
+          std::abort();
         }
         events[idx].msr_value = tmp2;
       } else if (sscanf(subtoken, "name=%255s", events[idx].name) == 1)
@@ -214,7 +214,7 @@ void build_event(const char *argv, EventSelectRegister *reg, int idx) {
       else {
         cerr << "Event '" << subtoken
              << "' is not supported. See the list of supported events" << endl;
-        throw subtoken;
+        std::abort();
       }
     }
   }
@@ -330,12 +330,12 @@ int main(int argc, char *argv[]) {
           cerr << "At most 4 events are allowed" << endl;
           exit(EXIT_FAILURE);
         }
-        try {
-          build_event(*argv, &regs[cur_event], cur_event);
-          cur_event++;
-        } catch (const char * /* str */) {
-          exit(EXIT_FAILURE);
-        }
+        // try {
+        build_event(*argv, &regs[cur_event], cur_event);
+        cur_event++;
+        // } catch (const char * /* str */) {
+        exit(EXIT_FAILURE);
+        // }
 
         continue;
       } else if (strncmp(*argv, "--", 2) == 0) {

@@ -104,7 +104,7 @@ class SafeMsrHandle {
   int32 getCoreId() {
     if (pHandle) return pHandle->getCoreId();
 
-    throw std::exception();
+    std::abort();
     return -1;
   }
 
@@ -116,25 +116,25 @@ class SafeMsrHandle {
   int32 buildTopology(uint32 num_cores, void *p) {
     if (pHandle) return pHandle->buildTopology(num_cores, p);
 
-    throw std::exception();
+    std::abort();
     return 0;
   }
   uint32 getNumInstances() {
     if (pHandle) return pHandle->getNumInstances();
 
-    throw std::exception();
+    std::abort();
     return 0;
   }
   uint32 incrementNumInstances() {
     if (pHandle) return pHandle->incrementNumInstances();
 
-    throw std::exception();
+    std::abort();
     return 0;
   }
   uint32 decrementNumInstances() {
     if (pHandle) return pHandle->decrementNumInstances();
 
-    throw std::exception();
+    std::abort();
     return 0;
   }
 #endif

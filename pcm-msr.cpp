@@ -120,22 +120,22 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 #endif
-  try {
-    MsrHandle h(core);
-    if (!dec) std::cout << std::hex << std::showbase;
-    if (write) {
-      std::cout << " Writing " << value << " to MSR " << msr << " on core "
-                << core << std::endl;
-      h.write(msr, value);
-    }
-    value = 0;
-    h.read(msr, &value);
-    std::cout << " Read value " << value << " from MSR " << msr << " on core "
-              << core << "\n"
-              << std::endl;
-  } catch (std::exception& e) {
-    std::cerr << "Error accessing MSRs: " << e.what() << std::endl;
-    std::cerr << "Please check if the program can access MSR drivers."
-              << std::endl;
+  // try {
+  MsrHandle h(core);
+  if (!dec) std::cout << std::hex << std::showbase;
+  if (write) {
+    std::cout << " Writing " << value << " to MSR " << msr << " on core "
+              << core << std::endl;
+    h.write(msr, value);
   }
+  value = 0;
+  h.read(msr, &value);
+  std::cout << " Read value " << value << " from MSR " << msr << " on core "
+            << core << "\n"
+            << std::endl;
+  //  } catch (std::exception& e) {
+  //    std::cerr << "Error accessing MSRs: " << e.what() << std::endl;
+  //    std::cerr << "Please check if the program can access MSR drivers."
+  //              << std::endl;
+  //  }
 }
